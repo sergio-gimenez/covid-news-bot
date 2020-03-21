@@ -13,8 +13,8 @@ class MongoDB:
     def insert_one(self, dict_to_insert):
         self.news.insert_one(dict_to_insert)
 
-    def find(self, filter, project={}):
-        cursor = self.news.find(filter, project)
+    def find(self, filter):
+        cursor = self.news.find(filter)
         return [row for row in cursor]
 
     def find_by_keyword(self, keyword):
@@ -31,14 +31,13 @@ class MongoDB:
         for tweet_no_key in list_to_update:
             id_tweet = {'id': tweet_no_key['id']}
             to_add = {'$set': {'category': category}}
-            self.news.updateOne(id_tweet, to_add)
-            print('updated')
+            self.news.update_one(id_tweet, to_add)
 
 
 
 if __name__ == "__main__":
     mongo = MongoDB()
     time = datetime(2014, 9, 24, 7, 51)
-    algo = mongo.find_by_time(time)
+    algo = mongo.update_category(1)
     print()
 
