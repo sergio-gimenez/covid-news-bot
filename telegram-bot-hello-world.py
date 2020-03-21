@@ -14,7 +14,7 @@ import logging
 from telegram import ReplyKeyboardMarkup
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
                           ConversationHandler)
-
+from database_connection import MongoDB
 import keywords, get_google_image
 
 # Enable logging
@@ -23,26 +23,12 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-CHOOSING, TYPING_REPLY, TYPING_CHOICE, SEND_INFO_TO_VALIDATE, IS_IT_TRUE , WHY_TRUST_YOU = range(6)
+CHOOSING, TYPING_REPLY, TYPING_CHOICE, SEND_INFO_TO_VALIDATE, IS_IT_TRUE, WHY_TRUST_YOU = range(6)
 
 reply_keyboard = [['Información última hora', 'Información tiempo real'],
                   ['Validar/Desmentir información'],
                   ['Nada más']]
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
-
-json = {
-  "user": {
-    "name": "brunoibez"
-  },
-  "text": "140 carácteres del usuario..",
-  "entities": {
-    "urls": [
-      {
-        "url": "www.google.com"
-      }
-    ]
-  }
-}
 
 
 def facts_to_str(user_data):
@@ -86,22 +72,23 @@ def received_information(update, context):
     return CHOOSING
 
 
-def get_tweet():
+def get_tweet(dict_tweet):
     tweet = ""
-    tweet += "Tweet por @%s\n" % (json["user"]["name"])
-    tweet += "%s\n" % (json["text"])
-    tweet += "%s" % (json["entities"]["urls"][0]["url"])
+    tweet += "Tweet por @%s\n" % (dict_tweet["user"]["name"])
+    tweet += "%s\n" % (dict_tweet["text"])
+    tweet += "%s" % (dict_tweet["entities"]["urls"][0]["url"])
 
-    keys = keywords.get_keywords(json["text"])
+    keys = keywords.get_keywords(dict_tweet["text"])
     keys = " ".join(keys)
     url_image = list(get_google_image.get_scrapped_image(keys))[0]
     return tweet, url_image
 
 
 def get_information(update, context):
-    tweets = ""
-    for _ in range(10):
-        tweet, url_image = get_tweet()
+    mongo = MongoDB()
+    tweets = mongo.get_popular_tweets()
+    for num_tweet in range(10):
+        tweet, url_image = get_tweet(tweets[num_tweet])
         chat_id = update.message.chat_id
         context.bot.send_photo(chat_id=chat_id, photo=url_image, caption=tweet)
     return CHOOSING
@@ -121,13 +108,16 @@ def get_text_to_validate(update, context):
         user_data["denied"].append(update.message.text)
 
     if "who_it_is" not in user_data:
-        update.message.reply_text('%s, dínos quien eres para así poder tener en cuenta tu información. Por ejemplo: "Doctor en el Hospital Vall Hebron, especializado en Epidemiologia"' % (name))
+        update.message.reply_text(
+            '%s, dínos quien eres para así poder tener en cuenta tu información. Por ejemplo: "Doctor en el Hospital Vall Hebron, especializado en Epidemiologia"' % (
+                name))
         user_data["name"] = name
         return WHY_TRUST_YOU
 
     update.message.reply_text("Esta información ha sido añadida al algoritmo. Gracias!".format(facts_to_str(user_data)),
-                                      reply_markup=markup)
+                              reply_markup=markup)
     return CHOOSING
+
 
 def is_true_or_false(update, context):
     text = update.message.text
@@ -140,23 +130,25 @@ def is_true_or_false(update, context):
         update.message.reply_text('Escribe "Validar" o "Desmentir"')
         return IS_IT_TRUE
 
-    update.message.reply_text("Envíanos un link que hayas recibido, una cadena de mensajes o un tweet y lo tendremos en cuenta en nuestro algoritmo")
+    update.message.reply_text(
+        "Envíanos un link que hayas recibido, una cadena de mensajes o un tweet y lo tendremos en cuenta en nuestro algoritmo")
     return SEND_INFO_TO_VALIDATE
+
 
 def who_you_are(update, context):
     text = update.message.text
     user_data = context.user_data
     user_data["who_it_is"] = text
 
-    update.message.reply_text("Gracias por tu información! Qué quieres hacer ahora? Clica sobre el icono para volver a ver las opciones disponibles")
+    update.message.reply_text(
+        "Gracias por tu información! Qué quieres hacer ahora? Clica sobre el icono para volver a ver las opciones disponibles")
 
     return CHOOSING
+
 
 def validate_information(update, context):
     update.message.reply_text('Quieres validar o desmentir una información? Escribe "Validar" o "Desmentir"')
     return IS_IT_TRUE
-
-
 
 
 def custom_choice(update, context):
@@ -166,11 +158,10 @@ def custom_choice(update, context):
     return TYPING_CHOICE
 
 
-
 def done(update, context):
     user_data = context.user_data
     if "name" in user_data:
-        output = "%s - %s, gracias por tu aportación\n" % (user_data["name"],user_data["who_it_is"])
+        output = "%s - %s, gracias por tu aportación\n" % (user_data["name"], user_data["who_it_is"])
         if "validated" in user_data:
             output += "Información validada:\n"
             for link in user_data["validated"]:
@@ -213,11 +204,11 @@ def main():
                        ],
 
             SEND_INFO_TO_VALIDATE: [MessageHandler(Filters.text,
-                                           get_text_to_validate)
-                            ],
+                                                   get_text_to_validate)
+                                    ],
 
             IS_IT_TRUE: [MessageHandler(Filters.regex('^Validar|Desmentir$'),
-                                             is_true_or_false)],
+                                        is_true_or_false)],
 
             WHY_TRUST_YOU: [MessageHandler(Filters.text,
                                            who_you_are)
