@@ -33,15 +33,11 @@ class MongoDB:
             to_add = {'$set': {'category': category}}
             self.news.update_one(id_tweet, to_add)
 
-<<<<<<< HEAD
+
     def get_popular_tweets(self, time_begin):
         filter = {'$query': {'inserted_at': {'$gte': time_begin}}, '$orderby' : { 'user.followers_count' : -1 }}
         cursor = self.find(filter)
         return [row for row in cursor]
-=======
-    # def get_popular_tweets(self):
-
->>>>>>> 234d0e7c3629f356b83744ca409f25c3584ea1ed
 
 
 
