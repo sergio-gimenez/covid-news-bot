@@ -1,6 +1,6 @@
 import json
 import socket
-
+from Constants import Constants
 from tweepy import OAuthHandler
 from tweepy import Stream
 from tweepy.streaming import StreamListener
@@ -38,18 +38,18 @@ def send_data(c_socket):
     auth.set_access_token(access_token, access_secret)
 
     twitter_stream = Stream(auth, TweetsListener(c_socket))
-    twitter_stream.filter(track=['soccer'])
+    twitter_stream.filter(track=['soccer', 'covid19'])
 
 
 if __name__ == "__main__":
     s = socket.socket()  # Create a socket object
-    host = "127.0.0.1"  # Get local machine name
-    port = 5555  # Reserve a port for your service.
-    s.bind((host, port))  # Bind to the port
 
-    print("Listening on port: %s" % str(port))
+    s.bind((Constants.HOST, Constants.PORT))  # Bind to the port
+
+    print("Listening on port: %s" % str(Constants.PORT))
 
     s.listen(5)  # Now wait for client connection.
+    print('listen')
     c, addr = s.accept()  # Establish connection with client.
 
     print("Received request from: " + str(addr))
