@@ -4,17 +4,20 @@ from pyspark.sql import SQLContext
 from pyspark.sql.functions import desc
 import time
 from collections import namedtuple
-from Constants import Constants
 import findspark
+import json
 
-findspark.init('/home/paucutrina/Downloads/spark-2.4.5-bin-hadoop2.7')
+with open('properties_user', 'r') as f:
+ user_data = json.load(f)
+
+findspark.init(user_data['findspark_path'])
 # Can only run this once. restart your kernel for any errors.
 sc = SparkContext()
 
 ssc = StreamingContext(sc, 10)
 sqlContext = SQLContext(sc)
 
-socket_stream = ssc.socketTextStream(Constants.HOST, Constants.PORT)
+socket_stream = ssc.socketTextStream(user_data['host'], user_data['port'])
 
 lines = socket_stream.window(20)
 

@@ -1,15 +1,18 @@
 import json
 import socket
-from Constants import Constants
 from tweepy import OAuthHandler
 from tweepy import Stream
 from tweepy.streaming import StreamListener
 
+
+with open('properties_user', 'r') as f:
+ user_data = json.load(f)
+
 # Set up your credentials
-consumer_key = 'gRD2nikdYfdHyK293wFSQypDA'
-consumer_secret = 'IYjjnsG2e7Y4gwDRjXfoEiXvn8UeoTewldBBbD1AEOnuO4q2BD'
-access_token = '798809735067635712-VjJvnmpYDGAgD0biq1VGGshoXCVzeX1'
-access_secret = 'dYGQJmVCmXXMTyNiOlWFqJGc0F0jhWb1SmlG4HAqCZBNp'
+consumer_key = user_data['consumer_key']
+consumer_secret = user_data['consumer_secret']
+access_token = user_data['access_token']
+access_secret = user_data['access_secret']
 
 
 class TweetsListener(StreamListener):
@@ -44,9 +47,9 @@ def send_data(c_socket):
 if __name__ == "__main__":
     s = socket.socket()  # Create a socket object
 
-    s.bind((Constants.HOST, Constants.PORT))  # Bind to the port
+    s.bind((user_data['host'], user_data['port']))  # Bind to the port
 
-    print("Listening on port: %s" % str(Constants.PORT))
+    print("Listening on port: %s" % str(user_data['port']))
 
     s.listen(5)  # Now wait for client connection.
     print('listen')
