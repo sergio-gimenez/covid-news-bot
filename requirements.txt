@@ -1,3 +1,5 @@
 findspark
 pyspark
 tweepy
+dnspython
+pymongo

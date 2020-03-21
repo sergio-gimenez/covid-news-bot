@@ -1,7 +1,7 @@
 
 import findspark
 from Constants import Constants
-findspark.init(Constants.SPARK_URL)
+
 from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
 from pyspark.sql import SQLContext
