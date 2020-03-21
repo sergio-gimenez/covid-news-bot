@@ -5,7 +5,7 @@ from database_connection import MongoDB
 from tweepy import OAuthHandler
 from tweepy import Stream
 from tweepy.streaming import StreamListener
-
+from message_filtering import is_valid
 
 with open('properties_user', 'r') as f:
  user_data = json.load(f)
@@ -26,8 +26,8 @@ class TweetsListener(StreamListener):
 
     def on_data(self, data):
         try:
-            
             msg = json.loads(data)
+            # if is_valid(msg):
             msg['inserted_at'] = datetime.datetime.utcnow()
             self.database.insert_one(msg)
             print(msg['text'].encode('utf-8'))

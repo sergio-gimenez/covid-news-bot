@@ -1,12 +1,13 @@
-import json
 
-def is_valid(tweet_json):
+def is_valid(tweet_data):
+    valid = False
+    try:
+        if tweet_data['user']['followers_count'] > tweet_data['user']['following'] and \
+                tweet_data['user']['verified'] == 'true' and tweet_data['user']['followers_count'] > 500000:
+            valid = True
+        return valid
+    except:
+        return valid
 
-    tweet_data = json.loads(tweet_json)    
 
-    if tweet_data['followers_count'] < tweet_data['following']:
-        return False
-    if tweet_data['verified'] == 'false'
-        return False
-    if tweet_data['followers_count'] < 500000
-        return False
+
