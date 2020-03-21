@@ -17,10 +17,14 @@ class MongoDB:
         cursor = self.news.find({'inserted_at': {'$gte': time_begin}})
         return [row for row in cursor]
 
-
+    def find_by_keyword(self, keyword):
+        cursor = self.news.find({'keyword': {'$regex': keyword, '$options':'i'}})
+        return [row for row in cursor]
 if __name__=="__main__":
     mongo = MongoDB()
     time = datetime(2014, 9, 24, 7, 51)
     algo = mongo.find_by_time(time)
+    algo2 = mongo.find_by_keyword('jordi')
+    print(algo2)
     print()
 

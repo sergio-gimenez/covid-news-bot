@@ -1,9 +1,5 @@
 findspark
 pyspark
 tweepy
-<<<<<<< HEAD
-
-=======
 dnspython
 pymongo
->>>>>>> 6953179f852f0c7819ad032bb5f22fd31a4964c8
