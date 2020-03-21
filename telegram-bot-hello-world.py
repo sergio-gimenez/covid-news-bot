@@ -1,5 +1,3 @@
-
-
 """
 First, a few callback functions are defined. Then, those functions are passed to
 the Dispatcher and registered at their respective places.
@@ -29,6 +27,20 @@ reply_keyboard = [['Información última hora', 'Información tiempo real'],
                   ['Validar/Desmentir información'],
                   ['Nada más']]
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
+
+json = {
+  "user": {
+    "name": "brunoibez"
+  },
+  "text": "140 carácteres del usuario..",
+  "entities": {
+    "urls": [
+      {
+        "url": "www.google.com"
+      }
+    ]
+  }
+}
 
 
 def facts_to_str(user_data):
@@ -72,11 +84,19 @@ def received_information(update, context):
     return CHOOSING
 
 
+def get_tweet():
+    tweet = ""
+    tweet += "Tweet por @%s\n" % (json["user"]["name"])
+    tweet += "%s\n" % (json["text"])
+    tweet += "%s" % (json["entities"]["urls"][0]["url"])
+    return tweet
 
 
 def get_information(update, context):
-
-    return SEND_INFO_TO_VALIDATE
+    tweets = ""
+    for _ in range(10):
+        update.message.reply_text(get_tweet())
+    return CHOOSING
 
 
 def get_text_to_validate(update, context):
