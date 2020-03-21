@@ -14,3 +14,25 @@ def get_url():
     contents = requests.get('https://random.dog/woof.json').json()    
     url = contents['url']
     return url
+
+def perro(bot, update):
+    # Get the url from the json
+    url = get_url()
+
+    # Get the recipient’s ID using this code:
+    chat_id = update.message.chat_id
+
+    # After we get the image URL and the recipient’s ID,
+    # it’s time to send the message, which is an image.
+    bot.send_photo(chat_id=chat_id, photo=url)
+
+
+def main():
+    updater = Updater('1070393137:AAGT8AVf0jWRYnVrnvsxkTlQtPqXLjwz2qU')
+    dp = updater.dispatcher
+    dp.add_handler(CommandHandler('perro',perro))
+    updater.start_polling()
+    updater.idle()
+    
+if __name__ == '__main__':
+    main()
