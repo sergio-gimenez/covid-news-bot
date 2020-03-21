@@ -1,10 +1,13 @@
+
+import findspark
+from Constants import Constants
+findspark.init(Constants.SPARK_URL)
 from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
 from pyspark.sql import SQLContext
 from pyspark.sql.functions import desc
 import time
 from collections import namedtuple
-import findspark
 import json
 
 with open('properties_user', 'r') as f:

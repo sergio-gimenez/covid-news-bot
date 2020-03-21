@@ -1,5 +1,9 @@
 import json
 import socket
+
+import pymongo
+import dns
+from Constants import Constants
 from tweepy import OAuthHandler
 from tweepy import Stream
 from tweepy.streaming import StreamListener
@@ -24,6 +28,7 @@ class TweetsListener(StreamListener):
     def on_data(self, data):
         try:
             msg = json.loads(data)
+            print(msg)
             print(msg['text'].encode('utf-8'))
             self.client_socket.send(msg['text'].encode('utf-8'))
             return True
@@ -41,12 +46,15 @@ def send_data(c_socket):
     auth.set_access_token(access_token, access_secret)
 
     twitter_stream = Stream(auth, TweetsListener(c_socket))
-    twitter_stream.filter(track=['soccer', 'covid19'])
+
+    twitter_stream.filter(track=['codiv', 'coronavirus'])
 
 
 if __name__ == "__main__":
     s = socket.socket()  # Create a socket object
 
+    client = pymongo.MongoClient(Constants.MONGODB_URL)
+    print(client.test)
     s.bind((user_data['host'], user_data['port']))  # Bind to the port
 
     print("Listening on port: %s" % str(user_data['port']))
