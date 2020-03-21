@@ -15,6 +15,8 @@ from telegram import ReplyKeyboardMarkup
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
                           ConversationHandler)
 
+import keywords, get_google_image
+
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -89,13 +91,19 @@ def get_tweet():
     tweet += "Tweet por @%s\n" % (json["user"]["name"])
     tweet += "%s\n" % (json["text"])
     tweet += "%s" % (json["entities"]["urls"][0]["url"])
-    return tweet
+
+    keys = keywords.get_keywords(json["text"])
+    keys = " ".join(keys)
+    url_image = list(get_google_image.get_scrapped_image(keys))[0]
+    return tweet, url_image
 
 
 def get_information(update, context):
     tweets = ""
     for _ in range(10):
-        update.message.reply_text(get_tweet())
+        tweet, url_image = get_tweet()
+        chat_id = update.message.chat_id
+        context.bot.send_photo(chat_id=chat_id, photo=url_image, caption=tweet)
     return CHOOSING
 
 
