@@ -10,7 +10,7 @@ bot.
 """
 
 import logging
-
+from datetime import datetime, timedelta
 from telegram import ReplyKeyboardMarkup
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
                           ConversationHandler)
@@ -76,21 +76,29 @@ def get_tweet(dict_tweet):
     tweet = ""
     tweet += "Tweet por @%s\n" % (dict_tweet["user"]["name"])
     tweet += "%s\n" % (dict_tweet["text"])
-    tweet += "%s" % (dict_tweet["entities"]["urls"][0]["url"])
+    try:
+        tweet += "%s" % (dict_tweet["entities"]["urls"][0]["url"])
+    except:
+        pass
 
     keys = keywords.get_keywords(dict_tweet["text"])
-    keys = " ".join(keys)
-    url_image = list(get_google_image.get_scrapped_image(keys))[0]
+    # keys = " ".join(keys)
+    # url_image = list(get_google_image.get_scrapped_image(keys))[0]
+    url_image = ""
     return tweet, url_image
 
 
 def get_information(update, context):
     mongo = MongoDB()
-    tweets = mongo.get_popular_tweets()
+    max_range_time = datetime.utcnow()-timedelta(minutes=2)
+    tweets = mongo.get_popular_tweets(max_range_time)
+    # print('tweets', len(tweets))
     for num_tweet in range(10):
+        # print(str(num_tweet) + str(tweets[num_tweet]))
         tweet, url_image = get_tweet(tweets[num_tweet])
-        chat_id = update.message.chat_id
-        context.bot.send_photo(chat_id=chat_id, photo=url_image, caption=tweet)
+        # chat_id = update.message.chat_id
+        # context.bot.send_photo(chat_id=chat_id, photo=url_image, caption=tweet)
+        update.message.reply_text(tweet)
     return CHOOSING
 
 
