@@ -1,9 +1,7 @@
 import json
 import socket
 import datetime
-import pymongo
-import dns
-from Constants import Constants
+from database_connection import MongoDB
 from tweepy import OAuthHandler
 from tweepy import Stream
 from tweepy.streaming import StreamListener
@@ -24,14 +22,14 @@ class TweetsListener(StreamListener):
     def __init__(self, csocket):
         super().__init__()
         self.client_socket = csocket
-        self.db_client = pymongo.MongoClient(Constants.MONGODB_URL)
-        self.news = self.db_client.covid.news
+        self.database = MongoDB()
+
     def on_data(self, data):
         try:
             
             msg = json.loads(data)
             msg['inserted_at'] = datetime.datetime.utcnow()
-            self.news.insert_one(msg)
+            self.database.insert_one(msg)
             print(msg['text'].encode('utf-8'))
             self.client_socket.send(msg['text'].encode('utf-8'))
             return True
@@ -55,8 +53,6 @@ def send_data(c_socket):
 
 if __name__ == "__main__":
     s = socket.socket()  # Create a socket object
-
-
 
     s.bind((user_data['host'], user_data['port']))  # Bind to the port
 
