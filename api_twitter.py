@@ -1,6 +1,6 @@
 import json
 import socket
-
+import datetime
 import pymongo
 import dns
 from Constants import Constants
@@ -24,11 +24,14 @@ class TweetsListener(StreamListener):
     def __init__(self, csocket):
         super().__init__()
         self.client_socket = csocket
-
+        self.db_client = pymongo.MongoClient(Constants.MONGODB_URL)
+        self.news = self.db_client.covid.news
     def on_data(self, data):
         try:
+            
             msg = json.loads(data)
-            print(msg)
+            msg['inserted_at'] = datetime.datetime.utcnow()
+            self.news.insert_one(msg)
             print(msg['text'].encode('utf-8'))
             self.client_socket.send(msg['text'].encode('utf-8'))
             return True
@@ -53,8 +56,8 @@ def send_data(c_socket):
 if __name__ == "__main__":
     s = socket.socket()  # Create a socket object
 
-    client = pymongo.MongoClient(Constants.MONGODB_URL)
-    print(client.test)
+
+
     s.bind((user_data['host'], user_data['port']))  # Bind to the port
 
     print("Listening on port: %s" % str(user_data['port']))
