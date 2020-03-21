@@ -1,6 +1,7 @@
 import pymongo
 import dns
 from Constants import Constants
+from datetime import datetime
 
 
 class MongoDB:
@@ -13,11 +14,13 @@ class MongoDB:
         self.news.insert_one(dict_to_insert)
 
     def find_by_time(self, time_begin):
-        self.news.find({"inserted_at"})
-
+        cursor = self.news.find({'inserted_at': {'$gte': time_begin}})
+        return [row for row in cursor]
 
 
 if __name__=="__main__":
     mongo = MongoDB()
-    mongo.insert_one({'name':'pepe'})
+    time = datetime(2014, 9, 24, 7, 51)
+    algo = mongo.find_by_time(time)
+    print()
 

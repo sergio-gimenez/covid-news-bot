@@ -6,7 +6,7 @@ from tweepy import OAuthHandler
 from tweepy import Stream
 from tweepy.streaming import StreamListener
 from message_filtering import is_valid
-
+from Constants import Constants
 
 with open('properties_user', 'r') as f:
  user_data = json.load(f)
@@ -49,7 +49,7 @@ def send_data(c_socket):
 
     twitter_stream = Stream(auth, TweetsListener(c_socket))
 
-    twitter_stream.filter(track=['codiv', 'coronavirus'])
+    twitter_stream.filter(track=Constants.TRACKS, languages=Constants.LANGUAGES)
 
 
 if __name__ == "__main__":
