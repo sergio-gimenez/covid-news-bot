@@ -106,7 +106,7 @@ def is_true_or_false(update, context):
     user_data = context.user_data
     if text == "Validar":
         user_data["true_or_false"] = True
-    elif text =="Desmentir":
+    elif text == "Desmentir":
         user_data["true_or_false"] = False
     else:
         update.message.reply_text('Escribe "Validar" o "Desmentir"')
@@ -120,7 +120,7 @@ def who_you_are(update, context):
     user_data = context.user_data
     user_data["who_it_is"] = text
 
-    update.message.reply_text("Gracias por tu información! Qué quieres hacer ahora?")
+    update.message.reply_text("Gracias por tu información! Qué quieres hacer ahora? Clica sobre el icono para volver a ver las opciones disponibles")
 
     return CHOOSING
 
@@ -141,10 +141,19 @@ def custom_choice(update, context):
 
 def done(update, context):
     user_data = context.user_data
+    if "name" in user_data:
+        output = "%s - %s, gracias por tu aportación\n" % (user_data["name"],user_data["who_it_is"])
+        if "validated" in user_data:
+            output += "Información validada:\n"
+            for link in user_data["validated"]:
+                output += link + "\n"
+        if "denied" in user_data:
+            output += "Información desmentida:\n"
+            for link in user_data["denied"]:
+                output += link + "\n"
+        output += "Hasta la próxima!"
 
-    update.message.reply_text("Gracias por validar esta información:"
-                              "{}"
-                              "Hasta la próxima!".format(facts_to_str(user_data)))
+        update.message.reply_text(output)
 
     user_data.clear()
     return ConversationHandler.END
