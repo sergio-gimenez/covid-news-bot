@@ -1,49 +1,3 @@
-# import logging
-#
-# from telegram import ReplyKeyboardMarkup
-# from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
-#                           ConversationHandler)
-#
-# import requests
-# import re
-#
-#
-# CHOOSING, TYPING_REPLY, TYPING_CHOICE = range(3)
-#
-# # This bot should return a dog image when we send the /bop command. To be able to do this,
-# # we can use the public API from RandomDog to help us generate random dog images.
-#
-# # The workflow of our bot is as simple as this:
-# # access the API -> get the image URL -> send the image
-# contents = requests.get('https://random.dog/woof.json').json()
-#
-# # Get the image URL since we need that parameter to be able to send the image.
-# def get_url():
-#     contents = requests.get('https://random.dog/woof.json').json()
-#     url = contents['url']
-#     return url
-#
-# def add_information(bot, update):
-#     # Get the url from the json
-#     url = get_url()
-#
-#     # Get the recipient’s ID using this code:
-#     chat_id = update.message.chat_id
-#     print("Hola")
-#     bot.send_message(chat_id=chat_id, text= "Quien eres? Ej: Bruno Ibáñez López")
-#
-#
-#
-# def main():
-#     updater = Updater('1070393137:AAGT8AVf0jWRYnVrnvsxkTlQtPqXLjwz2qU')
-#     dp = updater.dispatcher
-#     conv_handler = ConversationHandler
-#     dp.add_handler(CommandHandler('AddInfo',add_information))
-#     updater.start_polling()
-#     updater.idle()
-#
-# if __name__ == '__main__':
-#     main()
 
 
 """
@@ -130,37 +84,48 @@ def get_text_to_validate(update, context):
     user_data = context.user_data
     name = update.message.from_user.name
     if user_data["true_or_false"] == True:
-        if user_data["validated"] == None:
-            user_data["validated"] == []
+        if "validated" not in user_data:
+            user_data["validated"] = []
         user_data["validated"].append(update.message.text)
     else:
-        if user_data["denied"] == None:
-            user_data["denied"] == []
+        if "denied" not in user_data:
+            user_data["denied"] = []
         user_data["denied"].append(update.message.text)
-    update.message.reply_text("Esta información ha sido añadida al algoritmo".format(facts_to_str(user_data)),
-                                  reply_markup=markup)
 
-    if user_data["who_it_is"] == None:
-        update.message.reply_text("{}, dínos quien eres para así poder tener en cuenta tu información".format(facts_to_str(name)))
+    if "who_it_is" not in user_data:
+        update.message.reply_text('%s, dínos quien eres para así poder tener en cuenta tu información. Por ejemplo: "Doctor en el Hospital Vall Hebron, especializado en Epidemiologia"' % (name))
         user_data["name"] = name
         return WHY_TRUST_YOU
 
-    return IS_IT_TRUE
+    update.message.reply_text("Esta información ha sido añadida al algoritmo. Gracias!".format(facts_to_str(user_data)),
+                                      reply_markup=markup)
+    return CHOOSING
 
 def is_true_or_false(update, context):
+    text = update.message.text
+    user_data = context.user_data
+    if text == "Validar":
+        user_data["true_or_false"] = True
+    elif text =="Desmentir":
+        user_data["true_or_false"] = False
+    else:
+        update.message.reply_text('Escribe "Validar" o "Desmentir"')
+        return IS_IT_TRUE
+
     update.message.reply_text("Envíanos un link que hayas recibido, una cadena de mensajes o un tweet y lo tendremos en cuenta en nuestro algoritmo")
-    return CHOOSING
+    return SEND_INFO_TO_VALIDATE
 
 def who_you_are(update, context):
     text = update.message.text
+    user_data = context.user_data
     user_data["who_it_is"] = text
 
-    update.message.reply_text("Gracias por tu información!")
+    update.message.reply_text("Gracias por tu información! Qué quieres hacer ahora?")
 
-    return
+    return CHOOSING
 
 def validate_information(update, context):
-    update.message.reply_text('Quieres validar o desmentir una información? ')
+    update.message.reply_text('Quieres validar o desmentir una información? Escribe "Validar" o "Desmentir"')
     return IS_IT_TRUE
 
 
@@ -176,12 +141,10 @@ def custom_choice(update, context):
 
 def done(update, context):
     user_data = context.user_data
-    if 'choice' in user_data:
-        del user_data['choice']
 
-    update.message.reply_text("I learned these facts about you:"
+    update.message.reply_text("Gracias por validar esta información:"
                               "{}"
-                              "Until next time!".format(facts_to_str(user_data)))
+                              "Hasta la próxima!".format(facts_to_str(user_data)))
 
     user_data.clear()
     return ConversationHandler.END
@@ -216,7 +179,7 @@ def main():
                                            get_text_to_validate)
                             ],
 
-            IS_IT_TRUE: [MessageHandler(Filters.regex('^Cierto/True/Falso/False$'),
+            IS_IT_TRUE: [MessageHandler(Filters.regex('^Validar|Desmentir$'),
                                              is_true_or_false)],
 
             WHY_TRUST_YOU: [MessageHandler(Filters.text,
