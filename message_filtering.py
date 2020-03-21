@@ -2,11 +2,11 @@
 def is_valid(tweet_data):
     valid = False
     try:
-        if tweet_data['user']['followers_count'] > tweet_data['user']['following'] and \
-                tweet_data['user']['verified'] == 'true' and tweet_data['user']['followers_count'] > 500000:
+        if tweet_data['user']['verified'] and tweet_data['user']['followers_count'] > 50000:
             valid = True
         return valid
-    except:
+    except Exception as e:
+        print('ERROR ' + str(e))
         return valid
 
 

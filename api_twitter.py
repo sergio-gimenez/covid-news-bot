@@ -28,8 +28,9 @@ class TweetsListener(StreamListener):
     def on_data(self, data):
         try:
             msg = json.loads(data)
-            msg['inserted_at'] = datetime.datetime.utcnow()
+
             if is_valid(msg):
+                msg['inserted_at'] = datetime.datetime.utcnow()
                 self.database.insert_one(msg)
             print(msg['text'].encode('utf-8'))
             self.client_socket.send(msg['text'].encode('utf-8'))
