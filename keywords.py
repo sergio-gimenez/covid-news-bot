@@ -7,11 +7,11 @@ from nltk.tokenize.toktok import ToktokTokenizer
 
 text = "Algunas de estas palabras deben ser quitadas"
 
-text_without_punct = re.sub('[%s]' % re.escape(string.punctuation), ' ', text)
-toktok = ToktokTokenizer()
-texto_tokenized = toktok.tokenize(text_without_punct.lower())
+def get_keywords(text)
+    text_without_punct = re.sub('[%s]' % re.escape(string.punctuation), ' ', text)
+    toktok = ToktokTokenizer()
+    texto_tokenized = toktok.tokenize(text_without_punct.lower())
 
-keywords = [word for word in texto_tokenized if word not in stopwords.words('spanish')]
+    keywords = [word for word in texto_tokenized if word not in stopwords.words('spanish')]
 
-print("-------")
-print(keywords)
+    return keywords[:5]
