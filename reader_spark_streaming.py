@@ -1,3 +1,6 @@
+
+import findspark
+findspark.init('/opt/spark')
 from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
 from pyspark.sql import SQLContext
@@ -12,7 +15,7 @@ ssc = StreamingContext(sc, 1)
 
 # Create a DStream that will connect to hostname:port, like localhost:9999
 # Firewalls might block this!
-lines = ssc.socketTextStream("localhost", 9999)
+lines = ssc.socketTextStream("127.0.0.1", 5555)
 
 # Split each line into words
 words = lines.flatMap(lambda line: line.split(" "))
