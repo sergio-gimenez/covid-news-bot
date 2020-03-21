@@ -33,14 +33,16 @@ class MongoDB:
             to_add = {'$set': {'category': category}}
             self.news.update_one(id_tweet, to_add)
 
-    def get_popular_tweets(self):
-
+    def get_popular_tweets(self, time_begin):
+        filter = {'$query': {'inserted_at': {'$gte': time_begin}}, '$orderby' : { 'user.followers_count' : -1 }}
+        cursor = self.find(filter)
+        return [row for row in cursor]
 
 
 
 if __name__ == "__main__":
     mongo = MongoDB()
     time = datetime(2014, 9, 24, 7, 51)
-    algo = mongo.update_category(1)
-    print()
+    algo = mongo.get_popular_tweets(time)
+
 
