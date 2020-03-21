@@ -4,6 +4,7 @@ import socket
 import pymongo
 import dns
 
+from Constants import Constants
 
 from tweepy import OAuthHandler
 from tweepy import Stream
@@ -44,20 +45,22 @@ def send_data(c_socket):
     auth.set_access_token(access_token, access_secret)
 
     twitter_stream = Stream(auth, TweetsListener(c_socket))
+
     twitter_stream.filter(track=['codiv', 'coronavirus'])
 
 
 if __name__ == "__main__":
     s = socket.socket()  # Create a socket object
-    host = "127.0.0.1"  # Get local machine name
-    port = 5555  # Reserve a port for your service.
-    s.bind((host, port))  # Bind to the port
 
-    client = pymongo.MongoClient("mongodb+srv://covid:123123123!@cluster0-juygf.mongodb.net/test?retryWrites=true&w=majority")
+    client = pymongo.MongoClient(Constants.MONGODB_URL)
     print(client.test)
-    print("Listening on port: %s" % str(port))
+    s.bind((Constants.HOST, Constants.PORT))  # Bind to the port
+
+    print("Listening on port: %s" % str(Constants.PORT))
+
 
     s.listen(5)  # Now wait for client connection.
+    print('listen')
     c, addr = s.accept()  # Establish connection with client.
 
     print("Received request from: " + str(addr))

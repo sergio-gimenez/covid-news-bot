@@ -1,6 +1,7 @@
 
 import findspark
-findspark.init('/opt/spark')
+from Constants import Constants
+findspark.init(Constants.SPARK_URL)
 from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
 from pyspark.sql import SQLContext
@@ -9,34 +10,13 @@ import time
 from collections import namedtuple
 
 
-# Create a local StreamingContext with two working thread and batch interval of 1 second
-sc = SparkContext("local[2]", "NetworkWordCount")
-ssc = StreamingContext(sc, 1)
-
-# Create a DStream that will connect to hostname:port, like localhost:9999
-# Firewalls might block this!
-lines = ssc.socketTextStream("127.0.0.1", 5555)
-
-# Split each line into words
-words = lines.flatMap(lambda line: line.split(" "))
-
-# Count each word in each batch
-pairs = words.map(lambda word: (word, 1))
-wordCounts = pairs.reduceByKey(lambda x, y: x + y)
-
-# Print the first ten elements of each RDD generated in this DStream to the console
-wordCounts.pprint()
-
-ssc.start()  # Start the computation
-ssc.awaitTermination()  # Wait for the computation to terminate
-
 # Can only run this once. restart your kernel for any errors.
 sc = SparkContext()
 
 ssc = StreamingContext(sc, 10)
 sqlContext = SQLContext(sc)
 
-socket_stream = ssc.socketTextStream("127.0.0.1", 5555)
+socket_stream = ssc.socketTextStream(Constants.HOST, Constants.PORT)
 
 lines = socket_stream.window(20)
 
@@ -53,5 +33,6 @@ Tweet = namedtuple('Tweet', fields)
              .limit(10).registerTempTable("tweets")))  # Registers to a table.
 
 ssc.start()
-time.sleep(10)
-ssc.stop()
+while True:
+  time.sleep(0.1)
+# ssc.stop()
