@@ -128,6 +128,7 @@ def get_information(update, context):
 def get_text_to_validate(update, context):
     text = update.message.text
     user_data = context.user_data
+    name = update.message.from_user.name
     if user_data["true_or_false"] == True:
         if user_data["validated"] == None:
             user_data["validated"] == []
@@ -140,7 +141,8 @@ def get_text_to_validate(update, context):
                                   reply_markup=markup)
 
     if user_data["who_it_is"] == None:
-        update.message.reply_text("{}, dínos quien eres para así poder tener en cuenta tu información".format(facts_to_str(user_data))
+        update.message.reply_text("{}, dínos quien eres para así poder tener en cuenta tu información".format(facts_to_str(name)))
+        user_data["name"] = name
         return WHY_TRUST_YOU
 
     return IS_IT_TRUE
@@ -158,7 +160,6 @@ def who_you_are(update, context):
     return
 
 def validate_information(update, context):
-    import pdb; pdb.set_trace();
     update.message.reply_text('Quieres validar o desmentir una información? ')
     return IS_IT_TRUE
 
