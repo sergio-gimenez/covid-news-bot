@@ -33,6 +33,9 @@ class MongoDB:
             to_add = {'$set': {'category': category}}
             self.news.update_one(id_tweet, to_add)
 
+    def get_popular_tweets(self):
+
+
 
 
 if __name__ == "__main__":
