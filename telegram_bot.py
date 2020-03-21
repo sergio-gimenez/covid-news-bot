@@ -16,6 +16,10 @@ from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
                           ConversationHandler)
 from database_connection import MongoDB
 import keywords, get_google_image
+import json
+
+with open('properties_user', 'r') as f:
+ data_user = json.load(f)
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -90,10 +94,28 @@ def get_tweet(dict_tweet):
 
 def get_information(update, context):
     mongo = MongoDB()
-    max_range_time = datetime.utcnow()-timedelta(minutes=2)
+    max_range_time = datetime.utcnow()-timedelta(minutes=5)
     tweets = mongo.get_popular_tweets(max_range_time)
     # print('tweets', len(tweets))
-    for num_tweet in range(10):
+    for num_tweet in range(len(tweets)):
+        if num_tweet > 10:
+            break
+        # print(str(num_tweet) + str(tweets[num_tweet]))
+        tweet, url_image = get_tweet(tweets[num_tweet])
+        # chat_id = update.message.chat_id
+        # context.bot.send_photo(chat_id=chat_id, photo=url_image, caption=tweet)
+        update.message.reply_text(tweet)
+    return CHOOSING
+
+
+def get_information_live(update, context):
+    mongo = MongoDB()
+    max_range_time = datetime.utcnow()-timedelta(minutes=1)
+    tweets = mongo.get_popular_tweets(max_range_time)
+    # print('tweets', len(tweets))
+    for num_tweet in range(len(tweets)):
+        if num_tweet > 20:
+            break
         # print(str(num_tweet) + str(tweets[num_tweet]))
         tweet, url_image = get_tweet(tweets[num_tweet])
         # chat_id = update.message.chat_id
@@ -195,7 +217,7 @@ def run_telegram():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater('1028487474:AAGytwWBUqEQ_X_fY72zN7lWJQDXHo0tFMg', use_context=True)
+    updater = Updater(data_user["telegram_key"], use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
@@ -208,7 +230,9 @@ def run_telegram():
             CHOOSING: [MessageHandler(Filters.regex('^Información última hora$'),
                                       get_information),
                        MessageHandler(Filters.regex('^Validar/Desmentir información$'),
-                                      validate_information)
+                                      validate_information),
+                       MessageHandler(Filters.regex('^Información tiempo real$'),
+                                      get_information_live)
                        ],
 
             SEND_INFO_TO_VALIDATE: [MessageHandler(Filters.text,
