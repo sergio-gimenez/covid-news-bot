@@ -183,7 +183,7 @@ def error(update, context):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
-def main():
+def run_telegram():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
@@ -242,4 +242,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    run_telegram()

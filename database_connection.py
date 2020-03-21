@@ -33,7 +33,7 @@ class MongoDB:
             to_add = {'$set': {'category': category}}
             self.news.update_one(id_tweet, to_add)
 
-    def get_popular_tweets(self):
+    # def get_popular_tweets(self):
 
 
 

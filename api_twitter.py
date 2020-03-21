@@ -53,7 +53,7 @@ def send_data(c_socket):
     twitter_stream.filter(track=Constants.TRACKS, languages=Constants.LANGUAGES)
 
 
-if __name__ == "__main__":
+def run_api_twitter():
     s = socket.socket()  # Create a socket object
 
     s.bind((user_data['host'], user_data['port']))  # Bind to the port
@@ -67,3 +67,7 @@ if __name__ == "__main__":
     print("Received request from: " + str(addr))
 
     send_data(c)
+
+
+if __name__ == "__main__":
+    run_api_twitter()
