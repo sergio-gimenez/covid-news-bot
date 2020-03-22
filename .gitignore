@@ -2,4 +2,4 @@
 properties_user
 __pycache__
 .DS_Store
-
+env/
